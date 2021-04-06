@@ -1,20 +1,13 @@
 import packet
 
 class Node:
-    def __init__(self, _id, _s):
+    s = 0
+    def __init__(self, x, y, _id):
+        self.x = x
+        self.y = y
         self._id = _id
-        self._s = _s
+        self.queue = list()
 
     def receive(self, _packet):
         self.queue.append(_packet)
 
-    def transmission(self):
-
-
-    def get_travel(self):
-
-
-    def send_travel(self):
-
-
-    def activate(self):
