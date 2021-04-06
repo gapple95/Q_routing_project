@@ -3,6 +3,7 @@ import packet
 
 class Node:
     # topology = list()       # grid, 6x6 등등
+    # grid_topology 구현
     topology = [
         [(0, 0), (1, 6)],          # 0번 노드
         [(0, 0), (0, 2)],          # 1번 노드
