@@ -56,6 +56,8 @@ class Node:
         self.y = y
         self.id = _id
         self.queue = list()
+        self.routing_table = list()
+        self.hop_count = 0
 
     def receive(self):
         # 자신에게 보내진 패킷을 찾아서 처리
@@ -71,6 +73,7 @@ class Node:
 
                     # 패킷을 노드의 큐에 저장
                     self.queue.append(i)
+                    self.hop_count += 1
             # 해당 패킷이 노드를 찾았으면 배열에서 제거
             Node.packet_queue.remove(i)
 
