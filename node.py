@@ -56,7 +56,6 @@ class Node:
         self.y = y
         self.id = _id
         self.queue = list()
-        self.load_period = 0
 
     def receive(self):
         # 자신에게 보내진 패킷을 찾아서 처리
@@ -93,10 +92,9 @@ class Node:
         p = packet.Packet(0, self.id, destination, next)
         self.queue.append(p)
 
-    def activate(self):
+    def activate(self, t):
         # 패킷을 주기마다 생성
-        self.load_period += 1
-        if self.load_period == Node.load_period:
+        if t % Node.load_period == 0:
             for i in range(0, Node.load):
                 self.create_packet()
             self.load_period = 0
