@@ -1,5 +1,6 @@
 class Packet:
-    def __init__(self, time_stamp, _source, _destination, _prev, _next):
+    def __init__(self, time_stamp, _source, _destination, _next):
         self.time_stamp = time_stamp
-        self.sourceAddr = _source
-        self.destinationAddr = _destination
+        self.source = _source
+        self.destination = _destination
+        self.next = _next

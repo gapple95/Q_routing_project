@@ -1,4 +1,5 @@
 import packet
+import random
 
 
 class Node:
@@ -42,13 +43,25 @@ class Node:
         [(0, 0), (28, 33, 35)],    # 34번 노드
         [(0, 0), (29, 34)]         # 35번 노드
     ]
-    s = 0
+    # 전송속도
+    s = 1
+    load_period = 1
+    load = 1
+
+    # 패킷을 임시로 담아두는 배열
+    packet_queue = list()
 
     def __init__(self, x, y, _id):
         self.x = x
         self.y = y
-        self._id = _id
+        self.id = _id
         self.queue = list()
 
-    def receive(self, _packet):
-        self.queue.append(_packet)
+    def receive(self):
+        for i in Node.packet_queue:
+            if i.next == self.id:
+                self.queue.append(i)
+
+    def create_packet(self):
+        p = packet.Packet(0, self.id, random.randrange(0, len(Node.topology) + 1))
+        self.queue.append(p)
