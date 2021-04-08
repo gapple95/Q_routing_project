@@ -76,7 +76,8 @@ class Node:
             Node.packet_queue.remove(i)
 
     def send(self):
-        pass
+        # 노드의 큐에서 패킷을 꺼내 전송
+        Node.packet_queue.append(self.queue.pop())
 
     def create_packet(self):
         # 목표 노드 설정
