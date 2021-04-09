@@ -114,3 +114,6 @@ class Node:
 
         # 패킷 전송
         self.send()
+
+    def init_routing(self):
+        pass
