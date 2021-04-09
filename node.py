@@ -84,8 +84,13 @@ class Node:
         return self.routing_table[packet_destination]
 
     def send(self):
+        # 이웃 노드 설정
+        # 패킷의 목표 주소를 기준으로 선정
+        p = self.queue.pop()
+        p.next = self.select_next(p.destination)
+
         # 노드의 큐에서 패킷을 꺼내 전송
-        Node.packet_queue.append(self.queue.pop())
+        Node.packet_queue.append(p)
 
     def create_packet(self, t):
         # 목표 노드 설정
@@ -95,10 +100,9 @@ class Node:
             if not destination == self.id:
                 break
 
-        # 이웃 노드 설정
-        next = self.select_next(destination)
         # 패킷 생성
-        p = packet.Packet(t, self.id, destination, next)
+        # 이웃 노드는 아직 설정하지 않기 때문에 0
+        p = packet.Packet(t, self.id, destination, 0)
         self.queue.append(p)
 
     def activate(self, t):
