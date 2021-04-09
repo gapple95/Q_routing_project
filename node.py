@@ -86,7 +86,7 @@ class Node:
         # 노드의 큐에서 패킷을 꺼내 전송
         Node.packet_queue.append(self.queue.pop())
 
-    def create_packet(self):
+    def create_packet(self, t):
         # 목표 노드 설정
         # 자신을 제외한 나머지 노드들 중에 랜덤하게 선택
         while 1:
@@ -97,14 +97,14 @@ class Node:
         # 이웃 노드 설정
         next = self.select_next(destination)
         # 패킷 생성
-        p = packet.Packet(0, self.id, destination, next)
+        p = packet.Packet(t, self.id, destination, next)
         self.queue.append(p)
 
     def activate(self, t):
         # 패킷을 주기마다 생성
         if t % Node.load_period == 0:
             for i in range(0, Node.load):
-                self.create_packet()
+                self.create_packet(t)
 
         # 다른 노드에서 보낸 패킷을 큐에 저장
         self.receive()
