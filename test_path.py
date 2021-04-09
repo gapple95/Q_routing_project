@@ -68,28 +68,38 @@ class Node:
     def receive(self):
         # 자신에게 보내진 패킷을 찾아서 처리
         for i in Node.packet_queue:
+            print("check_next : " + str(i.next) + ", id : " + str(self.id))
+
             # 패킷 i 확인
             if i.next == self.id:
                 # 해당 패킷이 목표 노드라면
                 if i.destination == self.id:
+                    print("목표")
                     self.success.append(i)
                 # 아니라면 큐에 저장
                 else:
+                    print("지나감~")
                     # 패킷 i의 next 결정
                     # i.next = self.select_next(i.destination)
                     i.next = Node.topology[self.id][1][len(Node.topology[self.id][1]) - 1]
                     # 패킷을 노드의 큐에 저장
                     self.queue.append(i)
                     self.hop_count += 1
-            # 해당 패킷이 노드를 찾았으면 배열에서 제거
-            Node.packet_queue.remove(i)
+                # 해당 패킷이 노드를 찾았으면 배열에서 제거
+                Node.packet_queue.remove(i)
 
     def select_next(self, packet_destination):
         return self.routing_table[packet_destination]
 
     def send(self):
-        # 노드의 큐에서 패킷을 꺼내 전송
-        Node.packet_queue.append(self.queue.pop())
+        # 이웃 노드 설정
+        # 패킷의 목표 주소를 기준으로 선정
+        if not len(self.queue) == 0:
+            p = self.queue.pop()
+            p.next = Node.topology[self.id][1][len(Node.topology[self.id][1]) - 1]
+
+            # 노드의 큐에서 패킷을 꺼내 전송
+            Node.packet_queue.append(p)
 
     def create_packet(self, t):
         # 목표 노드 설정
@@ -103,6 +113,7 @@ class Node:
         # 이웃 노드 설정
         # next = self.select_next(destination)
         next = Node.topology[self.id][1][len(Node.topology[self.id][1]) - 1]
+        print(next)
         # 패킷 생성
         p = packet.Packet(t, self.id, destination, next)
         self.queue.append(p)

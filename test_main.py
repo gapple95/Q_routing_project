@@ -10,7 +10,12 @@ Nodes[0].create_packet(0)
 
 for t in range(0, 36):
     for i in range(0, 36):
-        print("t : " + str(t) + ", i : " + str(i))
+        # print("t : " + str(t) + ", i : " + str(i))
         Nodes[i].activate(t)
 
-print(len(Nodes[35].success))
+
+# print(str(Nodes[0].hop_count) + " ", end='')
+for i in range(0, 36):
+    if i % 6 == 0:
+        print(" ")
+    print(str(Nodes[i].hop_count) + " ", end='')
