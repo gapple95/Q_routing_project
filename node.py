@@ -45,7 +45,9 @@ class Node:
     ]
     # 전송속도
     s = 1
+    # 패킷 생성 주기
     load_period = 1
+    # 패킷 생성 수
     load = 1
 
     # 패킷을 임시로 담아두는 배열
@@ -70,12 +72,15 @@ class Node:
                 # 아니라면 큐에 저장
                 else:
                     # 패킷 i의 next 결정
-
+                    i.next = self.select_next(i.destination)
                     # 패킷을 노드의 큐에 저장
                     self.queue.append(i)
                     self.hop_count += 1
             # 해당 패킷이 노드를 찾았으면 배열에서 제거
             Node.packet_queue.remove(i)
+
+    def select_next(self, packet_destination):
+        return self.routing_table[packet_destination]
 
     def send(self):
         # 노드의 큐에서 패킷을 꺼내 전송
@@ -90,7 +95,7 @@ class Node:
                 break
 
         # 이웃 노드 설정
-        next = 0
+        next = self.select_next(destination)
         # 패킷 생성
         p = packet.Packet(0, self.id, destination, next)
         self.queue.append(p)
@@ -100,7 +105,6 @@ class Node:
         if t % Node.load_period == 0:
             for i in range(0, Node.load):
                 self.create_packet()
-            self.load_period = 0
 
         # 다른 노드에서 보낸 패킷을 큐에 저장
         self.receive()
