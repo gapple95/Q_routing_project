@@ -77,8 +77,8 @@ class Node:
                     # 패킷을 노드의 큐에 저장
                     self.queue.append(i)
                     self.hop_count += 1
-            # 해당 패킷이 노드를 찾았으면 배열에서 제거
-            Node.packet_queue.remove(i)
+                # 해당 패킷이 노드를 찾았으면 배열에서 제거
+                Node.packet_queue.remove(i)
 
     def select_next(self, packet_destination):
         return self.routing_table[packet_destination]
@@ -86,11 +86,12 @@ class Node:
     def send(self):
         # 이웃 노드 설정
         # 패킷의 목표 주소를 기준으로 선정
-        p = self.queue.pop()
-        p.next = self.select_next(p.destination)
+        if not len(self.queue) == 0:
+            p = self.queue.pop()
+            p.next = self.select_next(p.destination)
 
-        # 노드의 큐에서 패킷을 꺼내 전송
-        Node.packet_queue.append(p)
+            # 노드의 큐에서 패킷을 꺼내 전송
+            Node.packet_queue.append(p)
 
     def create_packet(self, t):
         # 목표 노드 설정
