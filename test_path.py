@@ -1,3 +1,6 @@
+# test_path.py
+# 0번 노드에서 35번 노드로 하나의 패킷을 보내는 테스트
+
 import packet
 import random
 
@@ -69,11 +72,12 @@ class Node:
             if i.next == self.id:
                 # 해당 패킷이 목표 노드라면
                 if i.destination == self.id:
-                    pass
+                    self.success.append(i)
                 # 아니라면 큐에 저장
                 else:
                     # 패킷 i의 next 결정
-                    i.next = self.select_next(i.destination)
+                    # i.next = self.select_next(i.destination)
+                    i.next = Node.topology[self.id][1][len(Node.topology[self.id][1]) - 1]
                     # 패킷을 노드의 큐에 저장
                     self.queue.append(i)
                     self.hop_count += 1
@@ -90,22 +94,24 @@ class Node:
     def create_packet(self, t):
         # 목표 노드 설정
         # 자신을 제외한 나머지 노드들 중에 랜덤하게 선택
-        while 1:
-            destination = random.randrange(0, len(Node.topology))
-            if not destination == self.id:
-                break
+        # while 1:
+        #     destination = random.randrange(0, len(Node.topology))
+        #     if not destination == self.id:
+        #         break
+        destination = 35
 
         # 이웃 노드 설정
-        next = self.select_next(destination)
+        # next = self.select_next(destination)
+        next = Node.topology[self.id][1][len(Node.topology[self.id][1]) - 1]
         # 패킷 생성
         p = packet.Packet(t, self.id, destination, next)
         self.queue.append(p)
 
     def activate(self, t):
-        # 패킷을 주기마다 생성
-        if t % Node.load_period == 0:
-            for i in range(0, Node.load):
-                self.create_packet(t)
+        # # 패킷을 주기마다 생성
+        # if t % Node.load_period == 0:
+        #     for i in range(0, Node.load):
+        #         self.create_packet(t)
 
         # 다른 노드에서 보낸 패킷을 큐에 저장
         self.receive()
