@@ -68,17 +68,17 @@ class Node:
     def receive(self):
         # 자신에게 보내진 패킷을 찾아서 처리
         for i in Node.packet_queue:
-            print("check_next : " + str(i.next) + ", id : " + str(self.id))
+            # print("check_next : " + str(i.next) + ", id : " + str(self.id))
 
             # 패킷 i 확인
             if i.next == self.id:
                 # 해당 패킷이 목표 노드라면
                 if i.destination == self.id:
-                    print("목표")
+                    # print("목표")
                     self.success.append(i)
                 # 아니라면 큐에 저장
                 else:
-                    print("지나감~")
+                    # print("지나감~")
                     # 패킷 i의 next 결정
                     # i.next = self.select_next(i.destination)
                     i.next = Node.topology[self.id][1][len(Node.topology[self.id][1]) - 1]
@@ -113,7 +113,7 @@ class Node:
         # 이웃 노드 설정
         # next = self.select_next(destination)
         next = Node.topology[self.id][1][len(Node.topology[self.id][1]) - 1]
-        print(next)
+
         # 패킷 생성
         p = packet.Packet(t, self.id, destination, next)
         self.queue.append(p)
