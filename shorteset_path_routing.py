@@ -1,6 +1,3 @@
-# shortest_path_routing.py
-# shortest 라우팅 기법 적용
-
 import packet
 import random
 
@@ -63,6 +60,7 @@ class Node:
         self.queue = list()
         self.routing_table = list()
         self.hop_count = 0
+        self.success = list()
 
     def receive(self):
         # 자신에게 보내진 패킷을 찾아서 처리
@@ -79,15 +77,21 @@ class Node:
                     # 패킷을 노드의 큐에 저장
                     self.queue.append(i)
                     self.hop_count += 1
-            # 해당 패킷이 노드를 찾았으면 배열에서 제거
-            Node.packet_queue.remove(i)
+                # 해당 패킷이 노드를 찾았으면 배열에서 제거
+                Node.packet_queue.remove(i)
 
     def select_next(self, packet_destination):
         return self.routing_table[packet_destination]
 
     def send(self):
-        # 노드의 큐에서 패킷을 꺼내 전송
-        Node.packet_queue.append(self.queue.pop())
+        # 이웃 노드 설정
+        # 패킷의 목표 주소를 기준으로 선정
+        if not len(self.queue) == 0:
+            p = self.queue.pop()
+            p.next = self.select_next(p.destination)
+
+            # 노드의 큐에서 패킷을 꺼내 전송
+            Node.packet_queue.append(p)
 
     def create_packet(self, t):
         # 목표 노드 설정
@@ -97,10 +101,9 @@ class Node:
             if not destination == self.id:
                 break
 
-        # 이웃 노드 설정
-        next = self.select_next(destination)
         # 패킷 생성
-        p = packet.Packet(t, self.id, destination, next)
+        # 이웃 노드는 아직 설정하지 않기 때문에 0
+        p = packet.Packet(t, self.id, destination, 0)
         self.queue.append(p)
 
     def activate(self, t):
@@ -116,4 +119,13 @@ class Node:
         self.send()
 
     def init_routing(self):
-        pass
+        # 다익스트라 방식으로 shortest path 구현
+        # 토폴로지 크기
+        size = len(Node.topology)
+        # 토폴로지 크기 만큼 라우팅 테이블 초기화
+        self.routing_table = [9999 for i in range(size)]
+        S = list()
+        cur = self.id
+        while not len(S) == size:
+            for i in range(0, len(Node.topology[cur][1])):
+                if(self.routing_table[i] > self.routing_table[])
