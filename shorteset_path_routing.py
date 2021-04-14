@@ -70,7 +70,7 @@ class Node:
             if i.next == self.id:
                 # 해당 패킷이 목표 노드라면
                 if i.destination == self.id:
-                    pass
+                    self.success.append(i)
                 # 아니라면 큐에 저장
                 else:
                     # 패킷 i의 next 결정
