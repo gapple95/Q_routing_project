@@ -1,5 +1,6 @@
 import packet
 import random
+import heapq
 
 
 class Node:
@@ -8,7 +9,7 @@ class Node:
     topology = [
         [(0, 0), (1, 6)],  # 0번 노드
         [(0, 0), (0, 2)],  # 1번 노드
-        [(0, 0), (1, 2)],  # 2번 노드
+        [(0, 0), (1, 3)],  # 2번 노드
         [(0, 0), (2, 4)],  # 3번 노드
         [(0, 0), (3, 5)],  # 4번 노드
         [(0, 0), (4, 11)],  # 5번 노드
@@ -119,13 +120,52 @@ class Node:
         self.send()
 
     def init_routing(self):
-        # 다익스트라 방식으로 shortest path 구현
         # 토폴로지 크기
         size = len(Node.topology)
         # 토폴로지 크기 만큼 라우팅 테이블 초기화
-        self.routing_table = [9999 for i in range(size)]
-        S = list()
-        cur = self.id
-        while not len(S) == size:
-            for i in range(0, len(Node.topology[cur][1])):
-                if(self.routing_table[i] > self.routing_table[])
+        self.routing_table = [0 for i in range(size)]
+
+        distances = {vertex : [float('inf'), self.id] for vertex in range(0,size )}
+
+        distances[self.id] = [0, self.id]
+
+        queue = list()
+
+        heapq.heappush(queue, [distances[self.id][0], self.id])
+
+        while queue:
+            current_distance, current_vertex = heapq.heappop(queue)
+            # print(str(current_vertex) + ", " + str(current_distance))
+
+            # if distances[current_vertex][0] < current_distance:
+            #     continue
+
+            for v in Node.topology[current_vertex][1]:
+                # print(v)
+                # 현재는 이웃 노드 까지의 거리가 1이다. 추후 거리를 계산하여 넣는다.
+                distance = current_distance + 1
+
+                if distance < distances[v][0]:
+                    distances[v] = [distance, current_vertex]
+                    heapq.heappush(queue, [distance, v])
+
+        # start = self.id
+        # end = 35
+        # path = end
+        # path_output = str(end) + '->'
+        # while distances[path][1] != start:
+        #     path_output += str(distances[path][1]) + '->'
+        #     path = distances[path][1]
+        # path_output += str(start)
+        # print(path_output)
+        for i in range(0, size):
+            start = self.id
+            end = i
+            if start == end:
+                continue
+
+            path = end
+            while distances[path][1] != start:
+                path = distances[path][1]
+
+            self.routing_table[i] = path
