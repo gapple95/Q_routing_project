@@ -67,16 +67,16 @@ class Node:
         for i in Node.packet_queue:
             # 패킷 i 확인
             if i.next == self.id:
+                self.hop_count += 1
                 # 해당 패킷이 목표 노드라면
                 if i.destination == self.id:
-                    pass
+                    self.success.append(i)
                 # 아니라면 큐에 저장
                 else:
                     # 패킷 i의 next 결정
                     i.next = self.select_next(i.destination)
                     # 패킷을 노드의 큐에 저장
                     self.queue.append(i)
-                    self.hop_count += 1
                 # 해당 패킷이 노드를 찾았으면 배열에서 제거
                 Node.packet_queue.remove(i)
 
@@ -93,7 +93,7 @@ class Node:
             # 노드의 큐에서 패킷을 꺼내 전송
             Node.packet_queue.append(p)
 
-    def create_packet(self, t):
+    def create_packet_random(self, t):
         # 목표 노드 설정
         # 자신을 제외한 나머지 노드들 중에 랜덤하게 선택
         while 1:
@@ -106,11 +106,17 @@ class Node:
         p = packet.Packet(t, self.id, destination, 0)
         self.queue.append(p)
 
+    def create_packet(self, t, destination):
+        # 패킷 생성
+        # 이웃 노드는 아직 설정하지 않기 때문에 0
+        p = packet.Packet(t, self.id, destination, 0)
+        self.queue.append(p)
+
     def activate(self, t):
         # 패킷을 주기마다 생성
         if t % Node.load_period == 0:
             for i in range(0, Node.load):
-                self.create_packet(t)
+                self.create_packet_random(t)
 
         # 다른 노드에서 보낸 패킷을 큐에 저장
         self.receive()
