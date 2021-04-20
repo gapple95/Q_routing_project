@@ -143,10 +143,10 @@ class Node:
             current_distance, current_vertex = heapq.heappop(queue)
             # print(str(current_vertex) + ", " + str(current_distance))
 
-            # if distances[current_vertex][0] < current_distance:
-            #     continue
+            if distances[current_vertex][0] < current_distance:
+                continue
 
-            for v in Node.topology[current_vertex][1]:
+            for v in random.sample(Node.topology[current_vertex][1],len(Node.topology[current_vertex][1])):
                 # print(v)
                 # 현재는 이웃 노드 까지의 거리가 1이다. 추후 거리를 계산하여 넣는다.
                 distance = current_distance + 1
@@ -171,7 +171,18 @@ class Node:
                 continue
 
             path = end
+            ###
+            path_output = str(end) + '->'
+            ###
             while distances[path][1] != start:
                 path = distances[path][1]
+                ###
+                path_output += str(path) + '->'
+                ###
+
+            ###
+            path_output += str(start)
+            print(path_output)
+            ###
 
             self.routing_table[i] = path
