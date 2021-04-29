@@ -130,6 +130,8 @@ class Node:
         size = len(Node.topology)
         # 토폴로지 크기 만큼 라우팅 테이블 초기화
         self.routing_table = [0 for i in range(size)]
+        # hop 초기화
+        self.hop_count = 0
 
         distances = {vertex : [float('inf'), self.id] for vertex in range(0,size )}
 
@@ -137,24 +139,29 @@ class Node:
 
         queue = list()
 
-        heapq.heappush(queue, [distances[self.id][0], self.id])
+        queue.append([distances[self.id][0], self.id])
 
         while queue:
-            current_distance, current_vertex = heapq.heappop(queue)
-            # print(str(current_vertex) + ", " + str(current_distance))
+            # print(queue)
+            current_distance, current_vertex = queue.pop(0)
+            # print("# " + str(current_vertex) + ", " + str(current_distance))
 
             if distances[current_vertex][0] < current_distance:
                 continue
 
-            for v in random.sample(Node.topology[current_vertex][1],len(Node.topology[current_vertex][1])):
+            dis_path = list()
+            for v in Node.topology[current_vertex][1]:
+                dis_path.append(v)
+
+            distance = current_distance + 1
+            # print(dis_path)
+            for v in random.sample(dis_path, len(dis_path)):
                 # print(v)
-                # 현재는 이웃 노드 까지의 거리가 1이다. 추후 거리를 계산하여 넣는다.
-                distance = current_distance + 1
 
                 if distance < distances[v][0]:
+                    # print("[" + str(v) + "]")
                     distances[v] = [distance, current_vertex]
-                    heapq.heappush(queue, [distance, v])
-
+                    queue.append([distance, v])
         # start = self.id
         # end = 35
         # path = end
@@ -182,7 +189,7 @@ class Node:
 
             ###
             path_output += str(start)
-            print(path_output)
+            # print(path_output)
             ###
 
             self.routing_table[i] = path
