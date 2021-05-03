@@ -47,7 +47,7 @@ class Node:
     # 전송속도
     s = 1
     # 패킷 생성 주기
-    load_period = 1
+    load_period = 10
     # 패킷 생성 수
     load = 1
 
@@ -80,6 +80,12 @@ class Node:
                     self.queue.append(i)
                 # 해당 패킷이 노드를 찾았으면 배열에서 제거
                 Node.packet_queue.remove(i)
+
+    def is_success(self):
+        if len(self.success) == 0:
+            return -1
+        else:
+            return self.success.pop()
 
     def select_next(self, packet_destination):
         return self.routing_table[packet_destination]
@@ -115,9 +121,9 @@ class Node:
 
     def activate(self, t):
         # 패킷을 주기마다 생성
-        # if t % Node.load_period == 0:
-        #     for i in range(0, Node.load):
-        #         self.create_packet_random(t)
+        if t % Node.load_period == 0:
+            for i in range(0, Node.load):
+                self.create_packet_random(t)
 
         # 다른 노드에서 보낸 패킷을 큐에 저장
         self.receive()
@@ -126,12 +132,14 @@ class Node:
         self.send()
 
     def init_routing(self):
+        # 초기화
+        self.queue = list()
+        self.hop_count = 0
+        self.success = list()
         # 토폴로지 크기
         size = len(Node.topology)
         # 토폴로지 크기 만큼 라우팅 테이블 초기화
         self.routing_table = [0 for i in range(size)]
-        # hop 초기화
-        self.hop_count = 0
 
         distances = {vertex : [float('inf'), self.id] for vertex in range(0,size )}
 

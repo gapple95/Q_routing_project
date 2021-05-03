@@ -12,51 +12,69 @@ for i in range(0, 36):
     Nodes[i].init_routing()
     # print()
 
-# Nodes[35].init_routing()
-
-# for t in range(0, 36):
+# # Nodes[35].init_routing()
+#
+# # for t in range(0, 36):
+# #     for i in range(0, 36):
+# #         # print("t : " + str(t) + ", i : " + str(i))
+# #         Nodes[i].activate(t)
+# avr_count = 100
+# for a in range(0, avr_count):
 #     for i in range(0, 36):
-#         # print("t : " + str(t) + ", i : " + str(i))
-#         Nodes[i].activate(t)
-avr_count = 100
-for a in range(0, avr_count):
-    for i in range(0, 36):
-        for j in range(0, 36):
-            if i == j:
-                continue
-            # print(str(i) + ", " + str(j))
-            Nodes[i].create_packet(0, j)
-            for l in range(0, 12):
-                for k in range(0, 36):
-                    Nodes[k].activate(0)
+#         for j in range(0, 36):
+#             if i == j:
+#                 continue
+#             # print(str(i) + ", " + str(j))
+#             Nodes[i].create_packet(0, j)
+#             for l in range(0, 12):
+#                 for k in range(0, 36):
+#                     Nodes[k].activate(0)
+#
+#     for i in range(0, 36):
+#         avr[i] = avr[i] + Nodes[i].hop_count
+#
+#     for i in range(0, 36):
+#         Nodes[i].init_routing()
+#
+# for i in range(0, 36):
+#     if i % 6 == 0:
+#         print()
+#     print(str(avr[i] / avr_count) + " ", end='')
+# print()
+#
+# # Nodes[35].create_packet(0, 28)
+#
+# # for i in range(0, 36):
+# #     Nodes[i].create_packet(0, i)
+# #
+# # for t in range(0, 1000):
+# #     for i in range(0, 36):
+# #         Nodes[i].activate(t)
+# #
+#
+# for i in range(0, 36):
+#     if i % 6 == 0:
+#         print()
+#     print(str(Nodes[i].hop_count) + " ", end='')
+# print()
+#
+# # for i in range(0, len(Nodes[34].success)):
+# #     print(str(Nodes[34].success[i].source) + " ", end='')
 
-    for i in range(0, 36):
-        avr[i] = avr[i] + Nodes[i].hop_count
 
+average_delay_time_list = list()
+for episode in range(0, 10):
+    average_delay_time = 0
     for i in range(0, 36):
         Nodes[i].init_routing()
 
-for i in range(0, 36):
-    if i % 6 == 0:
-        print()
-    print(str(avr[i] / avr_count) + " ", end='')
-print()
+    for t in range(0, 36):
+        for i in range(0, 36):
+            # print("t : " + str(t) + ", i : " + str(i))
+            Nodes[i].activate(t)
 
-# Nodes[35].create_packet(0, 28)
+    for i in range(0, 36):
+        average_delay_time += len(Nodes[i].queue)
+    average_delay_time_list.append(average_delay_time)
 
-# for i in range(0, 36):
-#     Nodes[i].create_packet(0, i)
-#
-# for t in range(0, 1000):
-#     for i in range(0, 36):
-#         Nodes[i].activate(t)
-#
-
-for i in range(0, 36):
-    if i % 6 == 0:
-        print()
-    print(str(Nodes[i].hop_count) + " ", end='')
-print()
-
-# for i in range(0, len(Nodes[34].success)):
-#     print(str(Nodes[34].success[i].source) + " ", end='')
+print(average_delay_time_list)
