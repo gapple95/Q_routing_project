@@ -47,7 +47,7 @@ class Node:
     # 전송속도
     s = 1
     # 패킷 생성 주기
-    load_period = 10
+    load_period = 5
     # 패킷 생성 수
     load = 1
 

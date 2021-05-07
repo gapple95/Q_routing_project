@@ -47,12 +47,15 @@ class Node:
     # 전송속도
     s = 1
     # 패킷 생성 주기
-    load_period = 1
+    load_period = 10
     # 패킷 생성 수
     load = 1
 
     # 패킷을 임시로 담아두는 배열
     packet_queue = list()
+
+    # 노드의 Q테이블
+    q_table = list()
 
     def __init__(self, x, y, _id):
         self.x = x

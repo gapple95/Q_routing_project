@@ -61,20 +61,25 @@ for i in range(0, 36):
 # # for i in range(0, len(Nodes[34].success)):
 # #     print(str(Nodes[34].success[i].source) + " ", end='')
 
-
-average_delay_time_list = list()
-for episode in range(0, 10):
-    average_delay_time = 0
-    for i in range(0, 36):
-        Nodes[i].init_routing()
-
-    for t in range(0, 36):
+for level in range(1, 5):
+    node.Node.load = level
+    average_delivery_time_list = list()
+    for episode in range(0, 10):
+        average_delivery = list()
         for i in range(0, 36):
-            # print("t : " + str(t) + ", i : " + str(i))
-            Nodes[i].activate(t)
+            Nodes[i].init_routing()
 
-    for i in range(0, 36):
-        average_delay_time += len(Nodes[i].queue)
-    average_delay_time_list.append(average_delay_time)
+        for t in range(0, 150000):
+            for i in range(0, 36):
+                # print("t : " + str(t) + ", i : " + str(i))
+                Nodes[i].activate(t)
 
-print(average_delay_time_list)
+            for i in range(0, 36):
+                p = Nodes[i].is_success()
+                if not p == -1:
+                    average_delivery.append(t - p.time_stamp)
+
+        average_delivery_time_list.append(sum(average_delivery, 0.0) / len(average_delivery))
+
+    print(average_delivery_time_list)
+    print(sum(average_delivery_time_list, 0.0) / len(average_delivery_time_list))
