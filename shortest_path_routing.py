@@ -62,6 +62,7 @@ class Node:
         self.routing_table = list()
         self.hop_count = 0
         self.success = list()
+        self.add_packet = 0
 
     def receive(self):
         # 자신에게 보내진 패킷을 찾아서 처리
@@ -121,10 +122,26 @@ class Node:
 
     def activate(self, t):
         # 패킷을 주기마다 생성
-        if t % Node.load_period == 0:
-            for i in range(0, Node.load):
+        if t % 10 == 0:
+            self.add_packet = (self.load - (self.load % 10)) * 10
+        if self.add_packet > 0:
+            r = random.randrange(0, self.add_packet+1)
+            if not r == 0:
+                for i in range(0, int(Node.load)):
+                    self.create_packet_random(t)
+                self.add_packet -= 1
+
+        if t % int(Node.load_period) == 0:
+            for i in range(0, int(Node.load)):
                 self.create_packet_random(t)
 
+        # 다른 노드에서 보낸 패킷을 큐에 저장
+        self.receive()
+
+        # 패킷 전송
+        self.send()
+
+    def activate_empty_queue(self, t):
         # 다른 노드에서 보낸 패킷을 큐에 저장
         self.receive()
 
@@ -140,6 +157,9 @@ class Node:
         size = len(Node.topology)
         # 토폴로지 크기 만큼 라우팅 테이블 초기화
         self.routing_table = [0 for i in range(size)]
+        # load level 초기화
+        self.add_packet = (self.load - (self.load % 10)) * 10
+        # print("test :", self.add_packet)
 
         distances = {vertex : [float('inf'), self.id] for vertex in range(0,size )}
 
@@ -201,3 +221,9 @@ class Node:
             ###
 
             self.routing_table[i] = path
+
+    def is_empty(self):
+        if len(self.queue) == 0:
+            return 1
+        else:
+            return 0
