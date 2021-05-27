@@ -50,6 +50,8 @@ class Node:
     load_period = 10
     # 패킷 생성 수
     load = 1
+    # 학습률
+    n = 0.001
 
     # 패킷을 임시로 담아두는 배열
     packet_queue = list()
@@ -65,12 +67,14 @@ class Node:
         self.routing_table = list()
         self.hop_count = 0
         self.success = list()
+        self.add_packet = 0
 
     def receive(self):
         # 자신에게 보내진 패킷을 찾아서 처리
         for i in Node.packet_queue:
             # 패킷 i 확인
             if i.next == self.id:
+                self.hop_count += 1
                 # 해당 패킷이 목표 노드라면
                 if i.destination == self.id:
                     self.success.append(i)
@@ -80,12 +84,17 @@ class Node:
                     i.next = self.select_next(i.destination)
                     # 패킷을 노드의 큐에 저장
                     self.queue.append(i)
-                    self.hop_count += 1
                 # 해당 패킷이 노드를 찾았으면 배열에서 제거
                 Node.packet_queue.remove(i)
 
+    def is_success(self):
+        if len(self.success) == 0:
+            return -1
+        else:
+            return self.success.pop()
+
     def select_next(self, packet_destination):
-        return self.routing_table[packet_destination]
+        return self.q_table[self.id][self.argmax(self.q_table[self.id], packet_destination)][packet_destination]
 
     def send(self):
         # 이웃 노드 설정
@@ -97,7 +106,7 @@ class Node:
             # 노드의 큐에서 패킷을 꺼내 전송
             Node.packet_queue.append(p)
 
-    def create_packet(self, t):
+    def create_packet_random(self, t):
         # 목표 노드 설정
         # 자신을 제외한 나머지 노드들 중에 랜덤하게 선택
         while 1:
@@ -110,11 +119,26 @@ class Node:
         p = packet.Packet(t, self.id, destination, 0)
         self.queue.append(p)
 
+    def create_packet(self, t, destination):
+        # 패킷 생성
+        # 이웃 노드는 아직 설정하지 않기 때문에 0
+        p = packet.Packet(t, self.id, destination, 0)
+        self.queue.append(p)
+
     def activate(self, t):
         # 패킷을 주기마다 생성
-        if t % Node.load_period == 0:
-            for i in range(0, Node.load):
-                self.create_packet(t)
+        if t % 10 == 0:
+            self.add_packet = (self.load - (self.load % 10)) * 10
+        if self.add_packet > 0:
+            r = random.randrange(0, self.add_packet + 1)
+            if not r == 0:
+                for i in range(0, int(Node.load)):
+                    self.create_packet_random(t)
+                self.add_packet -= 1
+
+        if t % int(Node.load_period) == 0:
+            for i in range(0, int(Node.load)):
+                self.create_packet_random(t)
 
         # 다른 노드에서 보낸 패킷을 큐에 저장
         self.receive()
@@ -122,53 +146,65 @@ class Node:
         # 패킷 전송
         self.send()
 
+    def activate_empty_queue(self, t):
+        # 다른 노드에서 보낸 패킷을 큐에 저장
+        self.receive()
+
+        # 패킷 전송
+        self.send()
+
     def init_routing(self):
+        # 초기화
+        self.queue = list()
+        self.hop_count = 0
+        self.success = list()
         # 토폴로지 크기
         size = len(Node.topology)
-        # 토폴로지 크기 만큼 라우팅 테이블 초기화
-        self.routing_table = [0 for i in range(size)]
+        # 토폴로지 크기 만큼 Q-table 초기화
+        line = len(Node.topology[self.id][1])
+        # print(str(self.id) + " : " + str(line))
 
-        distances = {vertex : [float('inf'), self.id] for vertex in range(0,size )}
+        # load level 초기화
+        self.add_packet = (self.load - (self.load % 10)) * 10
 
-        distances[self.id] = [0, self.id]
+        l = list()
+        for i in range(line):
+            tmp = list()
+            for j in range(size):
+                tmp.append(0)
+            l.append(tmp)
 
-        queue = list()
+        Node.q_table.append(l)
 
-        heapq.heappush(queue, [distances[self.id][0], self.id])
+    def q_routing(self, packet, destination):
+        # 해당 노드의 Q테이블 불러오기
+        node_list = Node.q_table[self.id]
+        for i in range(len(node_list)):
+            node_list[i][destination] = Node.n * (len(self.queue) + Node.s + self.select_t(i, destination)
+                                                  - node_list[i][destination])
+        # Q테이블 업데이트
+        Node.q_table[self.id] = node_list
 
-        while queue:
-            current_distance, current_vertex = heapq.heappop(queue)
-            # print(str(current_vertex) + ", " + str(current_distance))
+    def select_t(self, n, destination):
+        node_list = Node.q_table[n]
+        m = 9999
+        for i in range(node_list):
+            if m > node_list[i][destination]:
+                m = node_list[i][destination]
+        return m
 
-            # if distances[current_vertex][0] < current_distance:
-            #     continue
+    def argmax(self, arr, destination):
+        m = 0
+        count = 0
+        print(arr)
+        for i in arr:
+            if m < i:
+                m = i
+            count += 1
+        return arr.index(m)
 
-            for v in Node.topology[current_vertex][1]:
-                # print(v)
-                # 현재는 이웃 노드 까지의 거리가 1이다. 추후 거리를 계산하여 넣는다.
-                distance = current_distance + 1
-
-                if distance < distances[v][0]:
-                    distances[v] = [distance, current_vertex]
-                    heapq.heappush(queue, [distance, v])
-
-        # start = self.id
-        # end = 35
-        # path = end
-        # path_output = str(end) + '->'
-        # while distances[path][1] != start:
-        #     path_output += str(distances[path][1]) + '->'
-        #     path = distances[path][1]
-        # path_output += str(start)
-        # print(path_output)
-        for i in range(0, size):
-            start = self.id
-            end = i
-            if start == end:
-                continue
-
-            path = end
-            while distances[path][1] != start:
-                path = distances[path][1]
-
-            self.routing_table[i] = path
+    def is_empty(self):
+        if len(self.queue) == 0:
+            return 1
+        else:
+            return 0
