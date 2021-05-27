@@ -103,6 +103,9 @@ class Node:
             p = self.queue.pop()
             p.next = self.select_next(p.destination)
 
+            # Q_routing
+            self.q_routing(p.destination)
+
             # 노드의 큐에서 패킷을 꺼내 전송
             Node.packet_queue.append(p)
 
@@ -176,7 +179,7 @@ class Node:
 
         Node.q_table.append(l)
 
-    def q_routing(self, packet, destination):
+    def q_routing(self, destination):
         # 해당 노드의 Q테이블 불러오기
         node_list = Node.q_table[self.id]
         for i in range(len(node_list)):
@@ -188,20 +191,20 @@ class Node:
     def select_t(self, n, destination):
         node_list = Node.q_table[n]
         m = 9999
-        for i in range(node_list):
+        for i in range(len(node_list)):
             if m > node_list[i][destination]:
                 m = node_list[i][destination]
         return m
 
     def argmax(self, arr, destination):
-        m = 0
-        count = 0
-        print(arr)
-        for i in arr:
-            if m < i:
-                m = i
-            count += 1
-        return arr.index(m)
+        m_list = arr[0]
+        m = arr[0][destination]
+
+        for i in range(len(arr)):
+            if m < arr[i][destination]:
+                m_list = arr[i]
+                m = arr[i][destination]
+        return arr.index(m_list)
 
     def is_empty(self):
         if len(self.queue) == 0:
