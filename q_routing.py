@@ -51,7 +51,7 @@ class Node:
     # 패킷 생성 수
     load = 1
     # 학습률
-    n = 0.001
+    n = 0.5
 
     # 패킷을 임시로 담아두는 배열
     packet_queue = list()
@@ -94,6 +94,11 @@ class Node:
             return self.success.pop()
 
     def select_next(self, packet_destination):
+        node_list = Node.topology[self.id][1]
+        for i in node_list:
+            if i == packet_destination:
+                return i
+
         return self.q_table[self.id][self.argmax(self.q_table[self.id], packet_destination)][packet_destination]
 
     def send(self):
@@ -174,7 +179,10 @@ class Node:
         for i in range(line):
             tmp = list()
             for j in range(size):
-                tmp.append(0)
+                if j in Node.topology[self.id][1]:
+                    tmp.append(1)
+                else:
+                    tmp.append(99999)
             l.append(tmp)
 
         Node.q_table.append(l)
@@ -183,11 +191,13 @@ class Node:
         # 해당 노드의 Q테이블 불러오기
         node_list = Node.q_table[self.id]
         for i in range(len(node_list)):
-            node_list[i][destination] = Node.n * (len(self.queue) + Node.s + self.select_t(i, destination)
-                                                  - node_list[i][destination])
+            node_list[i][destination] = (1 - Node.n) * (node_list[i][destination]) +\
+                                        Node.n * (len(self.queue) + Node.s + self.select_t(i, destination))
         # Q테이블 업데이트
         Node.q_table[self.id] = node_list
 
+    # Q값 업데이트 시 t 값 결정
+    # t는 이웃노드의 이웃노드중 가장 작은 Q 값으로 정의됨
     def select_t(self, n, destination):
         node_list = Node.q_table[n]
         m = 9999
@@ -196,6 +206,7 @@ class Node:
                 m = node_list[i][destination]
         return m
 
+    # 이웃 노드 중 목표노드 까지의 Q값이 가장 낮은 값을 결정
     def argmax(self, arr, destination):
         m_list = arr[0]
         m = arr[0][destination]
